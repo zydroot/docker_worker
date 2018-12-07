@@ -1,0 +1,63 @@
+version: '2'
+services:
+  console:
+    build:
+      context: ./images/console
+      dockerfile: Dockerfile
+    volumes_from:
+      - php
+    tty: true
+  php:
+    build:
+      context: ./images/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/mnt/app
+  nodejs:
+    build:
+      context: ./images/nodejs
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/mnt/app
+    tty: true
+  web:
+    image: nginx:1.11.1
+    ports:
+      - "80:80"
+    depends_on:
+      - php
+    volumes_from:
+      - php
+    volumes:
+      - ./images/nginx/config:/etc/nginx/conf.d
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "app"
+      MYSQL_USER: "app"
+      MYSQL_PASSWORD: "123123"
+    volumes:
+      - db:/var/lib/mysql
+    volumes:
+      - ./images/mysql/config:/etc/mysql/conf.d
+  db2:
+    image: mysql:5.7
+    ports:
+      - "33061:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "shijifc_db"
+      MYSQL_USER: "app"
+      MYSQL_PASSWORD: "123123"
+    volumes:
+      - db2:/var/lib/mysql
+    volumes:
+      - ./images/mysql/config:/etc/mysql/conf.d
+volumes:
+  db:
+    driver: local
+  db2:
+    driver: local
